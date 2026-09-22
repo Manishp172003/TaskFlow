@@ -35,7 +35,7 @@ export default function Profile() {
   }
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-6 max-w-4xl page-enter">
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-textPrimary">
           My Profile

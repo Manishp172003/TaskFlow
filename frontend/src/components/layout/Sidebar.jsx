@@ -18,6 +18,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { ROLES } from '../../utils/constants';
 import { cn } from '../../utils/helpers';
+import { useToast } from '../../context/ToastContext';
 
 export default function Sidebar({
   isOpen,
@@ -26,10 +27,12 @@ export default function Sidebar({
   onToggleCollapse,
 }) {
   const { user, role, logout, switchRole, isAdmin } = useAuth();
+  const { success, info } = useToast();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     await logout();
+    info('Signed out of TaskFlow');
     navigate('/login');
   };
 
@@ -204,8 +207,9 @@ export default function Sidebar({
                 <div className="grid grid-cols-2 gap-1.5">
                   <button
                     type="button"
-                    onClick={() => {
-                      switchRole(ROLES.ADMIN);
+                    onClick={async () => {
+                      await switchRole(ROLES.ADMIN);
+                      success('Switched to Admin Console');
                       navigate('/admin/dashboard');
                     }}
                     className={cn(
@@ -220,8 +224,9 @@ export default function Sidebar({
                   </button>
                   <button
                     type="button"
-                    onClick={() => {
-                      switchRole(ROLES.USER);
+                    onClick={async () => {
+                      await switchRole(ROLES.USER);
+                      success('Switched to User Workspace');
                       navigate('/user/dashboard');
                     }}
                     className={cn(
@@ -241,9 +246,10 @@ export default function Sidebar({
               <div className="relative group flex justify-center">
                 <button
                   type="button"
-                  onClick={() => {
+                  onClick={async () => {
                     const next = isAdmin ? ROLES.USER : ROLES.ADMIN;
-                    switchRole(next);
+                    await switchRole(next);
+                    success(`Switched to ${next === ROLES.ADMIN ? 'Admin' : 'User'} Role`);
                     navigate(isAdmin ? '/user/dashboard' : '/admin/dashboard');
                   }}
                   className={cn(

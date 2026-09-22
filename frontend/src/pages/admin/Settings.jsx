@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Settings, Shield, Bell, Database, Server, Check } from 'lucide-react';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
+import { useToast } from '../../context/ToastContext';
 
 export default function AdminSettings() {
+  const { success } = useToast();
   const [saved, setSaved] = useState(false);
   const [apiUrl, setApiUrl] = useState('http://localhost:8080/api');
   const [jwtExpiry, setJwtExpiry] = useState('24');
@@ -13,11 +15,12 @@ export default function AdminSettings() {
   const handleSave = (e) => {
     e.preventDefault();
     setSaved(true);
+    success('System settings & API preferences saved');
     setTimeout(() => setSaved(false), 2500);
   };
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-6 max-w-4xl page-enter">
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-textPrimary">
           System Settings

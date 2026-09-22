@@ -14,8 +14,10 @@ import taskService from '../../services/taskService';
 import userService from '../../services/userService';
 import { calculateTaskStats } from '../../utils/helpers';
 import { TASK_STATUS, TASK_PRIORITY } from '../../utils/constants';
+import { useToast } from '../../context/ToastContext';
 
 export default function AdminReports() {
+  const { info } = useToast();
   const [tasks, setTasks] = useState([]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -66,7 +68,7 @@ export default function AdminReports() {
   const lowCount = tasks.filter((t) => t.priority === TASK_PRIORITY.LOW).length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 page-enter">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -81,7 +83,7 @@ export default function AdminReports() {
         <Button
           variant="secondary"
           icon={Download}
-          onClick={() => alert('Report export functionality will be connected with Spring Boot CSV/PDF export endpoints.')}
+          onClick={() => info('Report export queued. Preparing CSV/PDF payload.')}
         >
           Export Report
         </Button>

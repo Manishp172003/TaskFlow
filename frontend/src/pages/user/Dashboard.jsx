@@ -8,6 +8,7 @@ import {
   Calendar,
   ArrowRight,
   MessageSquare,
+  Sparkles,
 } from 'lucide-react';
 import StatCard from '../../components/dashboard/StatCard';
 import TaskCard from '../../components/tasks/TaskCard';
@@ -17,11 +18,13 @@ import taskService from '../../services/taskService';
 import userService from '../../services/userService';
 import { calculateTaskStats, formatDate, isOverdue } from '../../utils/helpers';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import { TASK_STATUS } from '../../utils/constants';
 
 export default function UserDashboard() {
   const { headerSearch } = useOutletContext() || {};
   const { user } = useAuth();
+  const { success } = useToast();
 
   const [myTasks, setMyTasks] = useState([]);
   const [users, setUsers] = useState([]);
@@ -40,7 +43,6 @@ export default function UserDashboard() {
         taskService.getTasks(),
         userService.getUsers(),
       ]);
-      // Filter tasks assigned to this user
       const assigned = allTasks.filter((t) => t.assignedToId === user.id);
       setMyTasks(assigned);
       setUsers(allUsers);
@@ -54,6 +56,7 @@ export default function UserDashboard() {
   const handleStatusChange = async (taskId, newStatus) => {
     const updated = await taskService.updateTaskStatus(taskId, newStatus);
     setMyTasks((prev) => prev.map((t) => (t.id === taskId ? updated : t)));
+    success(`Task status updated to "${newStatus}"`);
     if (selectedTask && selectedTask.id === taskId) {
       setSelectedTask(updated);
     }
@@ -68,6 +71,7 @@ export default function UserDashboard() {
           : t
       )
     );
+    success('Comment posted to discussion');
     if (selectedTask && selectedTask.id === taskId) {
       setSelectedTask((prev) => ({
         ...prev,
@@ -91,44 +95,60 @@ export default function UserDashboard() {
   const stats = calculateTaskStats(displayedTasks);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 page-enter">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-textPrimary">
-          My Workspace
-        </h1>
-        <p className="text-sm text-textSecondary mt-0.5">
-          Welcome back, <span className="font-semibold text-textPrimary">{user?.name}</span>. Here is your current task workload.
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-xs font-semibold uppercase tracking-wider text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+              Individual Contributor
+            </span>
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight text-textPrimary">
+            My Workspace
+          </h1>
+          <p className="text-sm text-textSecondary mt-0.5">
+            Welcome back, <span className="font-semibold text-textPrimary">{user?.name}</span>. Here is your current task workload.
+          </p>
+        </div>
+
+        <Link
+          to="/user/tasks"
+          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-borderSubtle bg-white text-xs font-semibold text-textPrimary hover:bg-slate-50 transition-colors shadow-2xs self-start sm:self-auto"
+        >
+          <span>Open Task Board</span>
+          <ArrowRight className="w-3.5 h-3.5 text-primary" />
+        </Link>
       </div>
 
       {/* 4 User Stat Cards: My Tasks, Pending, In Progress, Completed */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          title="My Tasks"
+          title="Assigned to Me"
           value={stats.total}
-          subtitle="Total assigned to you"
+          subtitle="Total tasks in sprint backlog"
           icon={ListTodo}
           variant="blue"
         />
         <StatCard
-          title="Pending"
+          title="To Do / Pending"
           value={stats.pending}
           subtitle="Waiting for pickup"
           icon={Clock}
           variant="amber"
         />
         <StatCard
-          title="In Progress"
+          title="In Development"
           value={stats.inProgress}
-          subtitle="Currently working on"
+          subtitle="Currently active tasks"
           icon={TrendingUp}
           variant="blue"
         />
         <StatCard
-          title="Completed"
+          title="Delivered"
           value={stats.completed}
-          subtitle={`${stats.completionRate}% completion rate`}
+          subtitle={`${stats.completionRate}% throughput rate`}
           icon={CheckCircle2}
           variant="emerald"
         />
@@ -138,27 +158,27 @@ export default function UserDashboard() {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-textPrimary">
-              Assigned Tasks
+            <h2 className="text-lg font-bold text-textPrimary">
+              Active Task Queue
             </h2>
             <p className="text-xs text-textSecondary">
-              Update task progress or add comments for your team
+              Update task progress or add comments for your team lead
             </p>
           </div>
           <Link
             to="/user/tasks"
-            className="text-xs font-medium text-primary hover:text-primary-hover flex items-center gap-1"
+            className="text-xs font-semibold text-primary hover:text-primary-hover flex items-center gap-1 transition-colors"
           >
             Manage all <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
         {displayedTasks.length === 0 ? (
-          <div className="bg-card rounded-xl border border-borderSubtle p-12 text-center shadow-card">
-            <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto mb-2" />
-            <h3 className="text-base font-semibold text-textPrimary">All Caught Up!</h3>
+          <div className="bg-card rounded-2xl border border-borderSubtle p-12 text-center shadow-card">
+            <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto mb-3" />
+            <h3 className="text-base font-bold text-textPrimary">All Caught Up!</h3>
             <p className="text-sm text-textSecondary mt-1">
-              You currently have no tasks assigned to you.
+              You currently have no tasks assigned to you. Enjoy your day or claim a task from the backlog.
             </p>
           </div>
         ) : (

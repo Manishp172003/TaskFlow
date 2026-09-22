@@ -20,8 +20,10 @@ import userService from '../../services/userService';
 import taskService from '../../services/taskService';
 import { ROLES } from '../../utils/constants';
 import { getInitials, cn } from '../../utils/helpers';
+import { useToast } from '../../context/ToastContext';
 
 export default function AdminUsers() {
+  const { success, info } = useToast();
   const [users, setUsers] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -114,9 +116,11 @@ export default function AdminUsers() {
       if (editingUser) {
         const updated = await userService.updateUser(editingUser.id, formData);
         setUsers((prev) => prev.map((u) => (u.id === editingUser.id ? updated : u)));
+        success(`Member "${updated.name}" updated successfully`);
       } else {
         const created = await userService.createUser(formData);
         setUsers((prev) => [...prev, created]);
+        success(`New member "${created.name}" added to organization`);
       }
       setIsModalOpen(false);
     } finally {
@@ -130,6 +134,7 @@ export default function AdminUsers() {
     try {
       await userService.deleteUser(deleteUserId);
       setUsers((prev) => prev.filter((u) => u.id !== deleteUserId));
+      info('User member removed from organization');
       setDeleteUserId(null);
     } finally {
       setIsSubmitting(false);
@@ -140,6 +145,7 @@ export default function AdminUsers() {
     const nextStatus = user.status === 'Active' ? 'Inactive' : 'Active';
     const updated = await userService.updateUser(user.id, { status: nextStatus });
     setUsers((prev) => prev.map((u) => (u.id === user.id ? updated : u)));
+    success(`User ${user.name} marked as ${nextStatus}`);
   };
 
   const filteredUsers = users.filter((u) => {
@@ -157,7 +163,7 @@ export default function AdminUsers() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 page-enter">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>

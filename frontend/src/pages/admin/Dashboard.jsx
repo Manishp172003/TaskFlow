@@ -9,6 +9,8 @@ import {
   ArrowRight,
   TrendingUp,
   Plus,
+  Sparkles,
+  Command,
 } from 'lucide-react';
 import StatCard from '../../components/dashboard/StatCard';
 import TaskSummary from '../../components/dashboard/TaskSummary';
@@ -21,10 +23,12 @@ import taskService from '../../services/taskService';
 import userService from '../../services/userService';
 import { calculateTaskStats, formatDate, isOverdue } from '../../utils/helpers';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 
 export default function AdminDashboard() {
-  const { headerSearch } = useOutletContext() || {};
+  const { headerSearch, openCommandPalette } = useOutletContext() || {};
   const { user } = useAuth();
+  const { success } = useToast();
 
   const [tasks, setTasks] = useState([]);
   const [users, setUsers] = useState([]);
@@ -55,6 +59,7 @@ export default function AdminDashboard() {
   const handleStatusChange = async (taskId, newStatus) => {
     const updated = await taskService.updateTaskStatus(taskId, newStatus);
     setTasks((prev) => prev.map((t) => (t.id === taskId ? updated : t)));
+    success(`Task status changed to ${newStatus}`);
     if (selectedTask && selectedTask.id === taskId) {
       setSelectedTask(updated);
     }
@@ -69,6 +74,7 @@ export default function AdminDashboard() {
           : t
       )
     );
+    success('Comment posted to discussion');
     if (selectedTask && selectedTask.id === taskId) {
       setSelectedTask((prev) => ({
         ...prev,
@@ -80,6 +86,7 @@ export default function AdminDashboard() {
   const handleCreateTask = async (taskData) => {
     const created = await taskService.createTask(taskData);
     setTasks((prev) => [created, ...prev]);
+    success(`New task "${created.id}" created successfully`);
     setIsCreateModalOpen(false);
   };
 
@@ -105,12 +112,18 @@ export default function AdminDashboard() {
     .slice(0, 4);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 page-enter">
       {/* Welcome Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-xs font-semibold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Live Workspace Active
+            </span>
+          </div>
           <h1 className="text-2xl font-bold tracking-tight text-textPrimary">
-            Dashboard
+            Executive Dashboard
           </h1>
           <p className="text-sm text-textSecondary mt-0.5">
             Welcome back, <span className="font-semibold text-textPrimary">{user?.name || 'Admin'}</span>. Here is the operational summary across all active projects.
@@ -118,6 +131,18 @@ export default function AdminDashboard() {
         </div>
 
         <div className="flex items-center gap-2.5">
+          {openCommandPalette && (
+            <button
+              type="button"
+              onClick={openCommandPalette}
+              className="hidden sm:inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-borderSubtle bg-white text-xs font-semibold text-textPrimary hover:bg-slate-50 transition-colors shadow-2xs"
+            >
+              <Command className="w-3.5 h-3.5 text-textSecondary" />
+              <span>Spotlight</span>
+              <kbd className="text-[10px] bg-slate-100 text-slate-500 px-1 rounded border border-slate-200 font-mono">⌘K</kbd>
+            </button>
+          )}
+
           <Button
             variant="primary"
             size="md"
@@ -129,7 +154,7 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* 4 Stat Cards */}
+      {/* 4 Stat Cards with visual indicators */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Total Tasks"
@@ -137,26 +162,26 @@ export default function AdminDashboard() {
           subtitle="All active and closed tasks"
           icon={ListTodo}
           variant="blue"
-          trend="+12% this month"
+          trend="+12% velocity"
         />
         <StatCard
-          title="Pending"
+          title="Pending Pickup"
           value={stats.pending}
-          subtitle="Waiting for team pickup"
+          subtitle="Waiting for team allocation"
           icon={Clock}
           variant="amber"
         />
         <StatCard
-          title="In Progress"
+          title="In Development"
           value={stats.inProgress}
-          subtitle="Actively in development"
+          subtitle="Actively being worked on"
           icon={TrendingUp}
           variant="blue"
         />
         <StatCard
-          title="Completed"
+          title="Sprint Completed"
           value={stats.completed}
-          subtitle={`${stats.completionRate}% completion rate`}
+          subtitle={`${stats.completionRate}% throughput rate`}
           icon={CheckCircle2}
           variant="emerald"
         />
@@ -170,11 +195,11 @@ export default function AdminDashboard() {
         </div>
 
         {/* Upcoming Deadlines Section */}
-        <div className="lg:col-span-2 bg-card rounded-xl border border-borderSubtle p-6 shadow-card flex flex-col justify-between">
+        <div className="lg:col-span-2 bg-card rounded-2xl border border-borderSubtle p-6 shadow-card hover:shadow-premium transition-all flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-base font-semibold text-textPrimary">
+                <h3 className="text-base font-bold text-textPrimary">
                   Upcoming Deadlines
                 </h3>
                 <p className="text-xs text-textSecondary mt-0.5">
@@ -183,7 +208,7 @@ export default function AdminDashboard() {
               </div>
               <Link
                 to="/admin/tasks"
-                className="text-xs font-medium text-primary hover:text-primary-hover flex items-center gap-1"
+                className="text-xs font-semibold text-primary hover:text-primary-hover flex items-center gap-1 transition-colors"
               >
                 View tasks <ArrowRight className="w-3.5 h-3.5" />
               </Link>
@@ -191,9 +216,9 @@ export default function AdminDashboard() {
 
             <div className="space-y-3">
               {upcomingTasks.length === 0 ? (
-                <p className="text-xs text-textSecondary italic py-4 text-center">
+                <div className="h-44 border-2 border-dashed border-borderSubtle rounded-xl flex items-center justify-center text-xs text-textSecondary italic">
                   No upcoming deadlines found. All clear!
-                </p>
+                </div>
               ) : (
                 upcomingTasks.map((t) => {
                   const assignee = users.find((u) => u.id === t.assignedToId);
@@ -201,7 +226,7 @@ export default function AdminDashboard() {
                   return (
                     <div
                       key={t.id}
-                      className="p-3 rounded-lg border border-borderSubtle bg-slate-50/50 hover:bg-slate-50 transition-colors flex items-center justify-between gap-3"
+                      className="p-3.5 rounded-xl border border-borderSubtle bg-slate-50/60 hover:bg-slate-50 transition-colors flex items-center justify-between gap-3 card-hover"
                     >
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
@@ -210,22 +235,22 @@ export default function AdminDashboard() {
                           </span>
                           <span
                             onClick={() => setSelectedTask(t)}
-                            className="text-sm font-medium text-textPrimary hover:text-primary cursor-pointer truncate"
+                            className="text-sm font-semibold text-textPrimary hover:text-primary cursor-pointer truncate transition-colors"
                           >
                             {t.title}
                           </span>
                         </div>
-                        <p className="text-xs text-textSecondary mt-0.5">
-                          Assigned: {assignee?.name || 'Unassigned'}
+                        <p className="text-xs text-textSecondary mt-1">
+                          Assigned: <strong className="text-textPrimary font-medium">{assignee?.name || 'Unassigned'}</strong>
                         </p>
                       </div>
 
                       <div className="shrink-0 flex items-center gap-2 text-xs">
                         <div
-                          className={`flex items-center gap-1 px-2.5 py-1 rounded-md font-medium ${
+                          className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-semibold ${
                             overdue
                               ? 'bg-rose-50 text-status-danger border border-rose-200'
-                              : 'bg-white text-textPrimary border border-borderSubtle'
+                              : 'bg-white text-textPrimary border border-borderSubtle shadow-2xs'
                           }`}
                         >
                           <Calendar className="w-3.5 h-3.5" />
@@ -240,8 +265,11 @@ export default function AdminDashboard() {
           </div>
 
           <div className="mt-4 pt-3 border-t border-borderSubtle flex items-center justify-between text-xs text-textSecondary">
-            <span>Sprint Goal Delivery</span>
-            <span className="font-semibold text-textPrimary">Sprint 42 (Q3)</span>
+            <span className="flex items-center gap-1 text-primary font-medium">
+              <Sparkles className="w-3.5 h-3.5" />
+              Sprint Goal Delivery
+            </span>
+            <span className="font-bold text-textPrimary">Sprint 42 (Q3 Active)</span>
           </div>
         </div>
       </div>
