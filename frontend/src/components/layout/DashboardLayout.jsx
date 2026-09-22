@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { Outlet } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import CommandPalette from '../common/CommandPalette';
 import { cn } from '../../utils/helpers';
 
 export default function DashboardLayout() {
+  const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [headerSearch, setHeaderSearch] = useState('');
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
@@ -55,8 +56,11 @@ export default function DashboardLayout() {
           onOpenCommandPalette={() => setCommandPaletteOpen(true)}
         />
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto page-enter">
-          <Outlet context={{ headerSearch, openCommandPalette: () => setCommandPaletteOpen(true) }} />
+        {/* Main Route Content with smooth transition keying on pathname */}
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+          <div key={location.pathname} className="page-transition">
+            <Outlet context={{ headerSearch, openCommandPalette: () => setCommandPaletteOpen(true) }} />
+          </div>
         </main>
       </div>
 

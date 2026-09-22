@@ -57,12 +57,26 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const [isSwitchingRole, setIsSwitchingRole] = useState(false);
+  const [switchingTargetRole, setSwitchingTargetRole] = useState('');
+
   /**
-   * Helper function for testing/demoing role switching easily
+   * Helper function for testing/demoing role switching easily with smooth transition
    */
   const switchRole = async (targetRole) => {
-    const target = targetRole === ROLES.ADMIN ? INITIAL_MOCK_USERS[0] : INITIAL_MOCK_USERS[1];
-    await login(target.email, 'password123', targetRole);
+    setIsSwitchingRole(true);
+    setSwitchingTargetRole(targetRole);
+    try {
+      // 420ms micro-delay gives a realistic, smooth loading transition feel
+      await new Promise((resolve) => setTimeout(resolve, 420));
+      const target = targetRole === ROLES.ADMIN ? INITIAL_MOCK_USERS[0] : INITIAL_MOCK_USERS[1];
+      await login(target.email, 'password123', targetRole);
+    } finally {
+      setTimeout(() => {
+        setIsSwitchingRole(false);
+        setSwitchingTargetRole('');
+      }, 180);
+    }
   };
 
   const value = {
@@ -72,6 +86,8 @@ export function AuthProvider({ children }) {
     isAuthenticated: !!token && !!user,
     isAdmin: user?.role === ROLES.ADMIN,
     loading,
+    isSwitchingRole,
+    switchingTargetRole,
     login,
     logout,
     switchRole,

@@ -318,56 +318,58 @@ export default function AdminTasks() {
         )}
       </div>
 
-      {/* Dynamic View rendering: Table / Cards / Kanban */}
-      {viewMode === 'table' && (
-        <TaskTable
-          tasks={filteredTasks}
-          users={users}
-          isAdmin={true}
-          onEdit={(task) => {
-            setEditingTask(task);
-            setIsFormOpen(true);
-          }}
-          onDelete={(id) => setDeleteTaskId(id)}
-          onStatusChange={handleStatusChange}
-          onViewDetails={(task) => setViewingTask(task)}
-        />
-      )}
+      {/* Dynamic View rendering: Table / Cards / Kanban with smooth transition */}
+      <div key={viewMode} className="view-switch-transition">
+        {viewMode === 'table' && (
+          <TaskTable
+            tasks={filteredTasks}
+            users={users}
+            isAdmin={true}
+            onEdit={(task) => {
+              setEditingTask(task);
+              setIsFormOpen(true);
+            }}
+            onDelete={(id) => setDeleteTaskId(id)}
+            onStatusChange={handleStatusChange}
+            onViewDetails={(task) => setViewingTask(task)}
+          />
+        )}
 
-      {viewMode === 'cards' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredTasks.map((task) => (
-            <TaskCard
-              key={task.id}
-              task={task}
-              assignee={users.find((u) => u.id === task.assignedToId)}
-              isAdmin={true}
-              onEdit={(t) => {
-                setEditingTask(t);
-                setIsFormOpen(true);
-              }}
-              onDelete={(id) => setDeleteTaskId(id)}
-              onStatusChange={handleStatusChange}
-              onViewDetails={(t) => setViewingTask(t)}
-            />
-          ))}
-          {filteredTasks.length === 0 && (
-            <div className="col-span-full bg-card rounded-2xl border border-borderSubtle p-12 text-center text-textSecondary shadow-card">
-              No tasks found matching your filter criteria.
-            </div>
-          )}
-        </div>
-      )}
+        {viewMode === 'cards' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredTasks.map((task) => (
+              <TaskCard
+                key={task.id}
+                task={task}
+                assignee={users.find((u) => u.id === task.assignedToId)}
+                isAdmin={true}
+                onEdit={(t) => {
+                  setEditingTask(t);
+                  setIsFormOpen(true);
+                }}
+                onDelete={(id) => setDeleteTaskId(id)}
+                onStatusChange={handleStatusChange}
+                onViewDetails={(t) => setViewingTask(t)}
+              />
+            ))}
+            {filteredTasks.length === 0 && (
+              <div className="col-span-full bg-card rounded-2xl border border-borderSubtle p-12 text-center text-textSecondary shadow-card">
+                No tasks found matching your filter criteria.
+              </div>
+            )}
+          </div>
+        )}
 
-      {viewMode === 'kanban' && (
-        <TaskKanban
-          tasks={filteredTasks}
-          users={users}
-          isAdmin={true}
-          onStatusChange={handleStatusChange}
-          onViewDetails={(t) => setViewingTask(t)}
-        />
-      )}
+        {viewMode === 'kanban' && (
+          <TaskKanban
+            tasks={filteredTasks}
+            users={users}
+            isAdmin={true}
+            onStatusChange={handleStatusChange}
+            onViewDetails={(t) => setViewingTask(t)}
+          />
+        )}
+      </div>
 
       {/* Task Create / Edit Modal */}
       <TaskForm

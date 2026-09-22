@@ -229,46 +229,48 @@ export default function MyTasks() {
         )}
       </div>
 
-      {/* Task List: Cards, Table, or Kanban */}
-      {viewMode === 'cards' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredTasks.map((task) => (
-            <TaskCard
-              key={task.id}
-              task={task}
-              assignee={user}
-              isAdmin={false}
-              onStatusChange={handleStatusChange}
-              onViewDetails={(t) => setViewingTask(t)}
-            />
-          ))}
-          {filteredTasks.length === 0 && (
-            <div className="col-span-full bg-card rounded-2xl border border-borderSubtle p-12 text-center text-textSecondary shadow-card">
-              No tasks match your filter criteria.
-            </div>
-          )}
-        </div>
-      )}
+      {/* Task List: Cards, Table, or Kanban with smooth transition */}
+      <div key={viewMode} className="view-switch-transition">
+        {viewMode === 'cards' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredTasks.map((task) => (
+              <TaskCard
+                key={task.id}
+                task={task}
+                assignee={user}
+                isAdmin={false}
+                onStatusChange={handleStatusChange}
+                onViewDetails={(t) => setViewingTask(t)}
+              />
+            ))}
+            {filteredTasks.length === 0 && (
+              <div className="col-span-full bg-card rounded-2xl border border-borderSubtle p-12 text-center text-textSecondary shadow-card">
+                No tasks match your filter criteria.
+              </div>
+            )}
+          </div>
+        )}
 
-      {viewMode === 'table' && (
-        <TaskTable
-          tasks={filteredTasks}
-          users={user ? [user] : []}
-          isAdmin={false}
-          onStatusChange={handleStatusChange}
-          onViewDetails={(t) => setViewingTask(t)}
-        />
-      )}
+        {viewMode === 'table' && (
+          <TaskTable
+            tasks={filteredTasks}
+            users={user ? [user] : []}
+            isAdmin={false}
+            onStatusChange={handleStatusChange}
+            onViewDetails={(t) => setViewingTask(t)}
+          />
+        )}
 
-      {viewMode === 'kanban' && (
-        <TaskKanban
-          tasks={filteredTasks}
-          users={user ? [user] : []}
-          isAdmin={false}
-          onStatusChange={handleStatusChange}
-          onViewDetails={(t) => setViewingTask(t)}
-        />
-      )}
+        {viewMode === 'kanban' && (
+          <TaskKanban
+            tasks={filteredTasks}
+            users={user ? [user] : []}
+            isAdmin={false}
+            onStatusChange={handleStatusChange}
+            onViewDetails={(t) => setViewingTask(t)}
+          />
+        )}
+      </div>
 
       {/* Task Details Modal with Comments */}
       {viewingTask && (
