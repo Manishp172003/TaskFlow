@@ -407,7 +407,7 @@ export default function AdminUsers() {
             />
           </div>
 
-          <div className="mt-6 flex items-center justify-end gap-3 pt-3 border-t border-borderSubtle">
+          <div className="sticky -bottom-5 -mx-6 px-6 py-3 bg-card/95 backdrop-blur-xs border-t border-borderSubtle flex items-center justify-end gap-3 z-10 mt-6">
             <Button
               type="button"
               variant="secondary"

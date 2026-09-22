@@ -199,7 +199,7 @@ export default function TaskDetailModal({
           )}
         </div>
 
-        <div className="flex justify-end pt-3 border-t border-borderSubtle">
+        <div className="sticky -bottom-5 -mx-6 px-6 py-3 bg-card/95 backdrop-blur-xs border-t border-borderSubtle flex justify-end z-10">
           <Button variant="secondary" size="sm" onClick={onClose}>
             Close
           </Button>
