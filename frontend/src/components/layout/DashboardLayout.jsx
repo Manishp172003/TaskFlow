@@ -31,7 +31,7 @@ export default function DashboardLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-page text-textPrimary flex flex-col">
+    <div className="min-h-screen bg-[#F4F7FC] text-slate-900 flex flex-col">
       {/* Sidebar navigation */}
       <Sidebar
         isOpen={sidebarOpen}
@@ -57,7 +57,7 @@ export default function DashboardLayout() {
         />
 
         {/* Main Route Content with smooth transition keying on pathname */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-[1440px] w-full mx-auto">
           <div key={location.pathname} className="page-transition">
             <Outlet context={{ headerSearch, openCommandPalette: () => setCommandPaletteOpen(true) }} />
           </div>

@@ -1,6 +1,5 @@
 import React from 'react';
 import { cn } from '../../utils/helpers';
-import { TrendingUp } from 'lucide-react';
 
 export default function StatCard({
   title,
@@ -8,72 +7,70 @@ export default function StatCard({
   subtitle,
   icon: Icon,
   variant = 'blue',
-  trend,
+  trendText,
+  trendType = 'positive', // 'positive' | 'neutral' | 'blue'
   className = '',
 }) {
-  const variantStyles = {
-    blue: {
-      iconBg: 'bg-blue-50 text-primary border border-blue-100',
-      topLine: 'bg-gradient-to-r from-blue-500 to-indigo-500',
-      accentGlow: 'hover:border-blue-300',
-    },
-    amber: {
-      iconBg: 'bg-amber-50 text-status-warning border border-amber-100',
-      topLine: 'bg-gradient-to-r from-amber-400 to-orange-500',
-      accentGlow: 'hover:border-amber-300',
-    },
-    emerald: {
-      iconBg: 'bg-emerald-50 text-status-success border border-emerald-100',
-      topLine: 'bg-gradient-to-r from-emerald-400 to-teal-500',
-      accentGlow: 'hover:border-emerald-300',
-    },
-    slate: {
-      iconBg: 'bg-slate-100 text-slate-700 border border-slate-200',
-      topLine: 'bg-gradient-to-r from-slate-400 to-slate-600',
-      accentGlow: 'hover:border-slate-300',
-    },
+  const accentBars = {
+    blue: 'bg-[#2563EB]',
+    amber: 'bg-slate-400',
+    emerald: 'bg-[#2563EB]',
+    slate: 'bg-slate-300',
   };
 
-  const style = variantStyles[variant] || variantStyles.blue;
+  const trendStyles = {
+    positive: 'text-blue-600 font-bold',
+    neutral: 'text-slate-500 font-medium',
+    blue: 'text-blue-600 font-bold',
+  };
 
   return (
     <div
       className={cn(
-        'bg-card rounded-2xl border border-borderSubtle p-5 shadow-card hover:shadow-premium',
-        'transition-all duration-200 hover:-translate-y-0.5 relative overflow-hidden group',
-        style.accentGlow,
+        'bg-white rounded-2xl border border-slate-100 p-5 shadow-sm hover:shadow-md transition-all duration-200 relative overflow-hidden flex flex-col justify-between group',
         className
       )}
     >
-      {/* Top accent gradient indicator */}
-      <div className={cn('absolute top-0 left-0 right-0 h-1 transition-opacity', style.topLine)} />
-
+      {/* Top row: Title + Light Blue Icon Badge */}
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold uppercase tracking-wider text-textSecondary">
+        <span className="text-xs font-medium text-slate-500 tracking-normal">
           {title}
         </span>
         {Icon && (
-          <div className={cn('p-2.5 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105', style.iconBg)}>
-            <Icon className="w-5 h-5" />
+          <div className="p-2 rounded-xl bg-blue-50 text-[#2563EB] flex items-center justify-center shrink-0 transition-transform group-hover:scale-105">
+            <Icon className="w-4 h-4" />
           </div>
         )}
       </div>
 
-      <div className="mt-3 flex items-baseline gap-2">
-        <span className="text-3xl font-bold tracking-tight text-textPrimary">
+      {/* Value */}
+      <div className="my-2">
+        <span className="text-3xl font-extrabold text-slate-900 tracking-tight">
           {value}
         </span>
-        {trend && (
-          <span className="inline-flex items-center gap-1 text-xs font-semibold text-status-success bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-            <TrendingUp className="w-3 h-3" />
-            {trend}
+      </div>
+
+      {/* Bottom row: Subtitle + Trend */}
+      <div className="flex items-center justify-between text-xs pt-1">
+        {subtitle && (
+          <span className="text-[11px] text-slate-400 font-medium truncate max-w-[130px]">
+            {subtitle}
+          </span>
+        )}
+        {trendText && (
+          <span className={cn('text-[11px] tracking-tight ml-auto', trendStyles[trendType] || trendStyles.positive)}>
+            {trendText}
           </span>
         )}
       </div>
 
-      {subtitle && (
-        <p className="mt-1.5 text-xs text-textSecondary font-medium">{subtitle}</p>
-      )}
+      {/* Bottom Accent Bar */}
+      <div
+        className={cn(
+          'absolute bottom-0 left-6 right-6 h-[2.5px] rounded-full opacity-90',
+          accentBars[variant] || 'bg-[#2563EB]'
+        )}
+      />
     </div>
   );
 }
